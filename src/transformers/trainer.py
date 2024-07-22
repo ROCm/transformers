@@ -2520,6 +2520,9 @@ class Trainer:
                         self._load_rng_state(resume_from_checkpoint)
                         rng_to_sync = False
 
+                    if (self.state.global_step == 10):
+                        start_train_stable_time = time.time()
+
                     # Skip past any already trained steps if resuming training
                     if steps_trained_in_current_epoch > 0:
                         steps_trained_in_current_epoch -= 1

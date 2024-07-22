@@ -1269,6 +1269,10 @@ class TrainingArguments:
             )
         },
     )
+    ort: Optional[bool] = field(
+        default=False,
+        metadata={"help": "Enable Ort"},
+    )
     label_smoothing_factor: float = field(
         default=0.0, metadata={"help": "The label smoothing epsilon to apply (zero means no label smoothing)."}
     )
