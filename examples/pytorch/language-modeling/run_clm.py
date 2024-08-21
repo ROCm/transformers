@@ -27,7 +27,7 @@ import os
 import sys
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Optional
+from typing import Optional, Union
 
 import datasets
 import evaluate
@@ -146,6 +146,15 @@ class ModelArguments:
             "help": (
                 "It is an option to create the model as an empty shell, then only materialize its parameters when the pretrained weights are loaded. "
                 "set True will benefit LLM loading time and RAM consumption."
+            )
+        },
+    )
+    device_map: Optional[Union[dict, str]] = field(
+        default=None,
+        metadata={
+            "help": (
+                "Pass a device_map or specify device_map=`auto` to automatically infer the device placement strategy"
+                " across the gpus, cpu, and disk using the model's state_dict"
             )
         },
     )
@@ -434,6 +443,7 @@ def main():
             trust_remote_code=model_args.trust_remote_code,
             torch_dtype=torch_dtype,
             low_cpu_mem_usage=model_args.low_cpu_mem_usage,
+            device_map=model_args.device_map,
         )
     else:
         model = AutoModelForCausalLM.from_config(config, trust_remote_code=model_args.trust_remote_code)
