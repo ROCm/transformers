@@ -799,6 +799,7 @@ class Trainer:
         self.callback_handler.remove_callback(callback)
 
     def _move_model_to_device(self, model, device):
+        return
         model = model.to(device)
         # Moving a model to an XLA device disconnects the tied weights, so we have to retie them.
         if self.args.parallel_mode == ParallelMode.TPU and hasattr(model, "tie_weights"):
