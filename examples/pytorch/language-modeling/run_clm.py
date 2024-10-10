@@ -388,7 +388,6 @@ def main():
         "revision": model_args.model_revision,
         "token": model_args.token,
         "trust_remote_code": model_args.trust_remote_code,
-        "device_map": "auto",
     }
     if model_args.config_name:
         config = AutoConfig.from_pretrained(model_args.config_name, **config_kwargs)
@@ -434,7 +433,7 @@ def main():
             token=model_args.token,
             trust_remote_code=model_args.trust_remote_code,
             torch_dtype=torch_dtype,
-            low_cpu_mem_usage=model_args.low_cpu_mem_usage,
+            device_map="auto",
         )
     else:
         model = AutoModelForCausalLM.from_config(config, trust_remote_code=model_args.trust_remote_code)
