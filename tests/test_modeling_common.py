@@ -3055,8 +3055,6 @@ class ModelTesterMixin:
                     )[0]
             torch.testing.assert_close(out_embeds, out_ids)
 
-
-    @skipIfRocm
     @require_non_xpu
     @skipIfRocm
     @require_torch_multi_gpu
