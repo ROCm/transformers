@@ -545,17 +545,6 @@ class PretrainedConfig(PushToHubMixin):
                 f"You are using a model of type {config_dict['model_type']} to instantiate a model of type "
                 f"{cls.model_type}. This is not supported for all configurations of models and can yield errors."
             )
-        
-                # Workaround for https://ontrack-internal.amd.com/browse/SWDEV-494633
-        # Disable attention dropout for all ort_huggingface models
-        warnings.warn(
-            "Attention dropout has been disabled to patch ort_huggingface_* models. "
-            "Please see https://ontrack-internal.amd.com/browse/SWDEV-494633."
-        )
-        config_dict["attn_pdrop"] = 0 # gpt2
-        config_dict["attention_probs_dropout_prob"] = 0 # bert, deberta, roberta
-        config_dict["attention_dropout"] = 0 # bart, distilbert
-        config_dict["dropout_rate"]  = 0 # t5
 
         return cls.from_dict(config_dict, **kwargs)
 
@@ -694,6 +683,18 @@ class PretrainedConfig(PushToHubMixin):
             config_dict["custom_pipelines"] = add_model_info_to_custom_pipelines(
                 config_dict["custom_pipelines"], pretrained_model_name_or_path
             )
+
+        # Workaround for https://ontrack-internal.amd.com/browse/SWDEV-494633
+        # Disable attention dropout for all ort_huggingface models
+        warnings.warn(
+            "Attention dropout has been disabled to patch ort_huggingface_* models. "
+            "Please see https://ontrack-internal.amd.com/browse/SWDEV-494633."
+        )
+        config_dict["attn_pdrop"] = 0 # gpt2
+        config_dict["attention_probs_dropout_prob"] = 0 # bert, deberta, roberta
+        config_dict["attention_dropout"] = 0 # bart, distilbert
+        config_dict["dropout_rate"]  = 0 # t5
+
         return config_dict, kwargs
 
     @classmethod
