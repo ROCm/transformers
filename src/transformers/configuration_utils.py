@@ -316,6 +316,17 @@ class PretrainedConfig(PushToHubMixin):
             except AttributeError as err:
                 logger.error(f"Can't set {key} with value {value} for {self}")
                 raise err
+        
+        # Workaround for https://ontrack-internal.amd.com/browse/SWDEV-494633
+        # Disable attention dropout for all ort_huggingface models
+        warnings.warn(
+            "Attention dropout has been disabled to patch ort_huggingface_* models. "
+            "Please see https://ontrack-internal.amd.com/browse/SWDEV-494633."
+        )
+        self.attn_pdrop = 0 # gpt2
+        self.attention_probs_dropout_prob = 0 # bert, deberta, roberta
+        self.attention_dropout = 0 # bart, distilbert
+        self.dropout_rate  = 0 # t5
 
     @property
     def name_or_path(self) -> str:
