@@ -57,7 +57,7 @@ class ContextPooler(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.pooler_hidden_size, config.pooler_hidden_size)
-        self.dropout = StableDropout(config.pooler_dropout)
+        self.dropout = nn.Dropout(config.pooler_dropout)
         self.config = config
 
     def forward(self, hidden_states):
@@ -193,7 +193,7 @@ class XDropout(torch.autograd.Function):
         dropout_p = local_ctx
         if isinstance(local_ctx, DropoutContext):
             dropout_p = local_ctx.dropout
-        # StableDropout only calls this function when training.
+        # nn.Dropout only calls this function when training.
         train = True
         # TODO: We should check if the opset_version being used to export
         # is > 12 here, but there's no good way to do that. As-is, if the
@@ -204,7 +204,7 @@ class XDropout(torch.autograd.Function):
         return symbolic_opset12.dropout(g, input, dropout_p, train)
 
 
-class StableDropout(nn.Module):
+class nn.Dropout(nn.Module):
     """
     Optimized dropout module for stabilizing the training
 
@@ -278,7 +278,7 @@ class DebertaSelfOutput(nn.Module):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.LayerNorm = DebertaLayerNorm(config.hidden_size, config.layer_norm_eps)
-        self.dropout = StableDropout(config.hidden_dropout_prob)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
     def forward(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
@@ -344,7 +344,7 @@ class DebertaOutput(nn.Module):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = DebertaLayerNorm(config.hidden_size, config.layer_norm_eps)
-        self.dropout = StableDropout(config.hidden_dropout_prob)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.config = config
 
     def forward(self, hidden_states, input_tensor):
@@ -566,14 +566,14 @@ class DisentangledSelfAttention(nn.Module):
             self.max_relative_positions = getattr(config, "max_relative_positions", -1)
             if self.max_relative_positions < 1:
                 self.max_relative_positions = config.max_position_embeddings
-            self.pos_dropout = StableDropout(config.hidden_dropout_prob)
+            self.pos_dropout = nn.Dropout(config.hidden_dropout_prob)
 
             if "c2p" in self.pos_att_type:
                 self.pos_proj = nn.Linear(config.hidden_size, self.all_head_size, bias=False)
             if "p2c" in self.pos_att_type:
                 self.pos_q_proj = nn.Linear(config.hidden_size, self.all_head_size)
 
-        self.dropout = StableDropout(config.attention_probs_dropout_prob)
+        self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
 
     def transpose_for_scores(self, x):
         new_x_shape = x.size()[:-1] + (self.num_attention_heads, -1)
@@ -744,7 +744,7 @@ class DebertaEmbeddings(nn.Module):
         if self.embedding_size != config.hidden_size:
             self.embed_proj = nn.Linear(self.embedding_size, config.hidden_size, bias=False)
         self.LayerNorm = DebertaLayerNorm(config.hidden_size, config.layer_norm_eps)
-        self.dropout = StableDropout(config.hidden_dropout_prob)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.config = config
 
         # position_ids (1, len position emb) is contiguous in memory and exported when serialized
@@ -1156,7 +1156,7 @@ class DebertaForSequenceClassification(DebertaPreTrainedModel):
         self.classifier = nn.Linear(output_dim, num_labels)
         drop_out = getattr(config, "cls_dropout", None)
         drop_out = self.config.hidden_dropout_prob if drop_out is None else drop_out
-        self.dropout = StableDropout(drop_out)
+        self.dropout = nn.Dropout(drop_out)
 
         # Initialize weights and apply final processing
         self.post_init()
