@@ -2502,6 +2502,9 @@ class Trainer:
                     else:
                         self.accelerator.gradient_state._set_sync_gradients(True)
 
+                    if (self.state.global_step == 10):
+                        start_train_stable_time = time.time()
+
                     if self.args.include_num_input_tokens_seen:
                         main_input_name = getattr(self.model, "main_input_name", "input_ids")
                         if main_input_name not in inputs:
