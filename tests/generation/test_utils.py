@@ -3875,9 +3875,9 @@ class GenerationIntegrationTests(unittest.TestCase, GenerationIntegrationTestsMi
         self.assertTrue((expected_out == predicted_out).all().item())
 
     @pytest.mark.generate
-    @require_torch_multi_gpu
+    @require_torch_multi_accelerator
     @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1200'])
-    def test_generate_with_static_cache_multi_gpu(self):
+    def test_generate_with_static_cache_multi_accelerator(self):
         """
         Tests if the static cache has been set correctly and if generate works correctly when we are using multi-gpus.
         """
@@ -3911,9 +3911,9 @@ class GenerationIntegrationTests(unittest.TestCase, GenerationIntegrationTestsMi
         self.assertTrue(key_cache_1.device == value_cache_1.device == torch.device(1))
 
     @pytest.mark.generate
-    @require_torch_multi_gpu
+    @require_torch_multi_accelerator
     @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1200'])
-    def test_init_static_cache_multi_gpu(self):
+    def test_generate_multi_accelerator_causal_mask(self):
         """
         Tests if the static cache has been set correctly when we initialize it manually in a multi-gpu setup.
         """
@@ -4235,6 +4235,8 @@ class GenerationIntegrationTests(unittest.TestCase, GenerationIntegrationTestsMi
         gen_out = compiled_generate(**model_inputs, generation_config=generation_config)
         self.assertTrue(gen_out.shape[1] > model_inputs["input_ids"].shape[1])  # some text was generated
 
+    @require_read_token
+    @slow
     @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1101','gfx1200'])
     def test_assisted_generation_early_exit(self):
         """
