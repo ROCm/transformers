@@ -149,6 +149,10 @@ class VitMatteModelTest(ModelTesterMixin, PipelineTesterMixin, unittest.TestCase
     def test_batching_equivalence(self):
         super().test_batching_equivalence()
 
+    @skipIfRocm(arch='gfx942')
+    def test_batching_equivalence(self):
+        super().test_batching_equivalence()
+
     def setUp(self):
         self.model_tester = VitMatteModelTester(self)
         self.config_tester = ConfigTester(

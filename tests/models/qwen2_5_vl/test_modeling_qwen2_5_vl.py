@@ -232,7 +232,6 @@ class Qwen2_5_VLModelTest(ModelTesterMixin, GenerationTesterMixin, unittest.Test
     test_pruning = False
     test_head_masking = False
 
-
     @skipIfRocm(arch='gfx90a')
     def test_generate_continue_from_past_key_values(self):
         super().test_generate_continue_from_past_key_values()

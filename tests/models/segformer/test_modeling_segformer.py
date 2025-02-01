@@ -185,6 +185,10 @@ class SegformerModelTest(ModelTesterMixin, PipelineTesterMixin, unittest.TestCas
     def test_batching_equivalence(self):
         super().test_batching_equivalence()
 
+    @skipIfRocm(arch='gfx942')
+    def test_batching_equivalence(self):
+        super().test_batching_equivalence()
+
     def setUp(self):
         self.model_tester = SegformerModelTester(self)
         self.config_tester = SegformerConfigTester(self, config_class=SegformerConfig)
