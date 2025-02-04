@@ -20,7 +20,8 @@ from transformers.testing_utils import (
     TestCasePlus,
     execute_subprocess_async,
     get_torch_dist_unique_port,
-    require_torch_multi_gpu,
+    require_torch_multi_accelerator,
+    torch_device,
     skipIfRocm,
 )
 
@@ -103,7 +104,7 @@ if is_torch_available():
 
 
 class TestFSDPGeneration(TestCasePlus):
-    @require_torch_multi_gpu
+    @require_torch_multi_accelerator
     @skipIfRocm(arch='gfx90a', os_name='ubuntu', os_version='24.04')
     def test_fsdp_generate(self):
         distributed_args = f"""--nproc_per_node={torch.cuda.device_count()}
@@ -115,7 +116,7 @@ class TestFSDPGeneration(TestCasePlus):
         execute_subprocess_async(cmd, env=self.get_env())
         # successful return here == success - any errors would have caused an error in the sub-call
 
-    @require_torch_multi_gpu
+    @require_torch_multi_accelerator
     @skipIfRocm(arch='gfx90a', os_name='ubuntu', os_version='24.04')
     def test_fsdp2_generate(self):
         distributed_args = f"""--nproc_per_node={torch.cuda.device_count()}
