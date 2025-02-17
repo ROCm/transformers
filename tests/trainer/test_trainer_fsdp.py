@@ -21,8 +21,9 @@ from transformers.testing_utils import (
     get_torch_dist_unique_port,
     require_accelerate,
     require_fp8,
-    require_fsdp,
-    require_torch_multi_gpu,
+    require_torch_multi_accelerator,
+    run_first,
+    torch_device,
     skipIfRocm,
 )
 
@@ -66,8 +67,7 @@ if is_torch_available():
 
 class TestFSDPTrainer(TestCasePlus):
     @require_accelerate
-    @require_torch_multi_gpu
-    @require_fsdp
+    @run_first
     @skipIfRocm(os_name='ubuntu', os_version='24.04')
     def test_trainer(self):
         output_dir = self.get_auto_remove_tmp_dir()
