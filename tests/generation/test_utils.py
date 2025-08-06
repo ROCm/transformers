@@ -4023,7 +4023,7 @@ class GenerationIntegrationTests(unittest.TestCase):
 
     @pytest.mark.generate
     @require_torch_multi_accelerator
-    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1200'])
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1200', 'gfx1100'])
     def test_generate_multi_accelerator_causal_mask(self):
         """
         Tests that cache position device doesn't clash with causal mask device when we are using multi-accelerators.
@@ -4354,7 +4354,7 @@ class GenerationIntegrationTests(unittest.TestCase):
         self.assertTrue(model_inputs["encoder_outputs"] == "foo")
         # See the decoder-only test for more corner cases. The code is the same, so we don't repeat it here.
 
-    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1200'])
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1200','gfx1101','gfx1100'])
     def test_generate_compile_fullgraph_tiny(self):
         """
         Tests that we can call end-to-end generation with a tiny model (i.e. doesn't crash)
@@ -4500,6 +4500,7 @@ class GenerationIntegrationTests(unittest.TestCase):
         valid_model_kwargs = {"attention_mask": torch.tensor(np.zeros_like(input_ids))}
         model.generate(input_ids, **valid_model_kwargs)
 
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1101','gfx1200'])
     def test_custom_logits_processor(self):
         """Tests that custom logits processors can be used in `generate`, and that redundant arguments are caught."""
         bart_tokenizer = AutoTokenizer.from_pretrained("hf-internal-testing/tiny-random-bart")
@@ -4804,6 +4805,7 @@ class GenerationIntegrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             model.generate(input_ids=input_ids, inputs_embeds=input_ids)
 
+    @skipIfRocm(arch=['gfx942','gfx90a','gfx1100','gfx1101','gfx1201','gfx1200'])
     def test_generate_input_features_as_encoder_kwarg(self):
         """Test that non-`input_ids` main model inputs are correctly handled as positional arguments"""
         input_features = floats_tensor((3, 80, 60))

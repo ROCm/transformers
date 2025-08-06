@@ -32,6 +32,7 @@ from transformers.testing_utils import (
     require_flash_attn,
     require_torch,
     require_torch_gpu,
+    skipIfRocm,
     slow,
     torch_device,
 )

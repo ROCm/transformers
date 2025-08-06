@@ -515,7 +515,7 @@ class RoFormerSinusoidalPositionalEmbeddingTest(unittest.TestCase):
         input_ids = torch.tensor([[4, 10]], dtype=torch.long, device=torch_device)
         emb1 = RoFormerSinusoidalPositionalEmbedding(num_positions=6, embedding_dim=6).to(torch_device)
         emb1._init_weight()
-        emb = emb1(input_ids.shape)
+        emb = emb1(input_ids.shape).to(torch_device)
         desired_weights = torch.tensor(
             [[0.0000, 0.0000, 0.0000, 1.0000, 1.0000, 1.0000], [0.8415, 0.0464, 0.0022, 0.5403, 0.9989, 1.0000]]
         ).to(torch_device)
@@ -556,7 +556,7 @@ class RoFormerSelfAttentionRotaryPositionEmbeddingTest(unittest.TestCase):
         ).to(torch_device)
         embed_positions = RoFormerSinusoidalPositionalEmbedding(num_positions=32, embedding_dim=64).to(torch_device)
         embed_positions._init_weight()
-        sinusoidal_pos = embed_positions([2, 16, 768])[None, None, :, :]
+        sinusoidal_pos = (embed_positions([2, 16, 768])[None, None, :, :]).to(torch_device)
 
         query_layer, key_layer = RoFormerSelfAttention.apply_rotary_position_embeddings(
             sinusoidal_pos, query_layer, key_layer

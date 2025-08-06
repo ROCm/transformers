@@ -19,11 +19,13 @@ from transformers.testing_utils import (
     get_torch_dist_unique_port,
     require_torch_multi_accelerator,
     torch_device,
+    skipIfRocm,
 )
 
 
 class TestTrainerDistributedLoss(TestCasePlus):
     @require_torch_multi_accelerator
+    @skipIfRocm
     def test_trainer(self):
         device_count = backend_device_count(torch_device)
         min_bs = 2

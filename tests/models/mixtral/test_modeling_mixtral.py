@@ -23,9 +23,10 @@ from transformers.testing_utils import (
     require_torch,
     require_torch_accelerator,
     require_torch_gpu,
+    rocmUtils,
     slow,
     torch_device,
-    skipIfRocm
+    skipIfRocm,
 )
 
 from ...generation.test_utils import GenerationTesterMixin

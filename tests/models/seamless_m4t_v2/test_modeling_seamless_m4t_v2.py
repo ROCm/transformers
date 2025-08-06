@@ -18,7 +18,7 @@ import tempfile
 import unittest
 
 from transformers import SeamlessM4Tv2Config, is_speech_available, is_torch_available
-from transformers.testing_utils import require_torch, slow, torch_device
+from transformers.testing_utils import require_torch, skipIfRocm, slow, torch_device
 from transformers.trainer_utils import set_seed
 from transformers.utils import cached_property
 
@@ -580,6 +580,7 @@ class SeamlessM4Tv2ModelWithSpeechInputTest(ModelTesterMixin, unittest.TestCase)
 
     # TODO: @ydshieh: refer to #34968
     @unittest.skip(reason="Failing on multi-gpu runner")
+    @skipIfRocm
     def test_retain_grad_hidden_states_attentions(self):
         self.skipTest(reason="Failing on multi-gpu runner")
 

@@ -18,14 +18,13 @@ import unittest
 from transformers import (
     MODEL_FOR_CAUSAL_LM_MAPPING,
     MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING,
-    TF_MODEL_FOR_CAUSAL_LM_MAPPING,
-    TF_MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING,
     AutoModelForCausalLM,
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
     BlenderbotSmallForConditionalGeneration,
     BlenderbotSmallTokenizer,
     TFAutoModelForCausalLM,
+    is_tf_available,
     pipeline,
 )
 from transformers.testing_utils import (
@@ -43,6 +42,11 @@ if not os.environ['TEST_WITH_ROCM']:
     from transformers import (
     Conversation,
     ConversationalPipeline,
+    )
+if is_tf_available():
+    from transformers import (
+        TF_MODEL_FOR_CAUSAL_LM_MAPPING,
+        TF_MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING,
     )
 
 
@@ -65,13 +69,14 @@ class ConversationalPipelineTests(unittest.TestCase):
         if MODEL_FOR_CAUSAL_LM_MAPPING
         else []
     )
-    tf_model_mapping = dict(
-        list(TF_MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING.items())
-        if TF_MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING
-        else [] + list(TF_MODEL_FOR_CAUSAL_LM_MAPPING.items())
-        if TF_MODEL_FOR_CAUSAL_LM_MAPPING
-        else []
-    )
+    if is_tf_available():
+        tf_model_mapping = dict(
+            list(TF_MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING.items())
+            if TF_MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING
+            else [] + list(TF_MODEL_FOR_CAUSAL_LM_MAPPING.items())
+            if TF_MODEL_FOR_CAUSAL_LM_MAPPING
+            else []
+        )
 
     def get_test_pipeline(self, model, tokenizer, processor):
         conversation_agent = ConversationalPipeline(model=model, tokenizer=tokenizer)

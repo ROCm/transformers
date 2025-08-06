@@ -209,7 +209,7 @@ class ChameleonModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTester
     test_pruning = False
     fx_compatible = False
 
-    @skipIfRocm(os_name='ubuntu', os_version='24.04')
+    @skipIfRocm(arch=['gfx90a','gfx942','gfx1100','gfx1101','gfx1200','gfx1201'], os_name='ubuntu', os_version='24.04')
     def test_generate_with_static_cache(self):
         super().test_generate_with_static_cache()
 

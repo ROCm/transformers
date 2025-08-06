@@ -28,6 +28,7 @@ from transformers.testing_utils import (
     require_torch,
     require_torch_sdpa,
     require_vision,
+    skipIfRocm,
     slow,
     to_2tuple,
     torch_device,

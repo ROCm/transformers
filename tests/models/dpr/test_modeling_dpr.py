@@ -190,11 +190,6 @@ class DPRModelTest(ModelTesterMixin, PipelineTesterMixin, unittest.TestCase):
     test_pruning = False
     test_head_masking = False
 
-    @skipIfRocm(arch=['gfx90a','gfx942'])
-    def test_eager_matches_sdpa_inference_2_float32(self):
-        super().test_eager_matches_sdpa_inference_2_float32()
-        pass
-
     def setUp(self):
         self.model_tester = DPRModelTester(self)
         self.config_tester = ConfigTester(self, config_class=DPRConfig, hidden_size=37)

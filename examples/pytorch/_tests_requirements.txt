@@ -21,6 +21,7 @@ sentencepiece != 0.1.92
 protobuf
 torch
 torchvision
+torchcodec
 torchaudio
 jiwer
 librosa

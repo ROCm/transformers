@@ -39,6 +39,7 @@ from transformers.testing_utils import (
     require_torch_gpu,
     require_torchaudio,
     run_test_in_subprocess,
+    skipIfRocm,
     slow,
     torch_device,
 )

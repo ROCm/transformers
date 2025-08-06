@@ -22,6 +22,7 @@ from transformers import PhimoeConfig, StaticCache, is_torch_available, set_seed
 from transformers.testing_utils import (
     is_flaky,
     require_torch,
+    skipIfRocm,
     slow,
     torch_device,
 )

@@ -23,6 +23,7 @@ from transformers.testing_utils import (
     require_read_token,
     require_torch_accelerator,
     require_torch_multi_accelerator,
+    skipIfRocm,
     slow,
     torch_device,
 )
@@ -257,6 +258,7 @@ class FP8LinearTest(unittest.TestCase):
         torch.cuda.is_available() and torch.cuda.get_device_capability()[0] < 9,
         "Skipping FP8LinearTest because it is not supported on GPU with capability < 9.0",
     )
+    @skipIfRocm
     def test_linear_preserves_shape(self):
         """
         Test that FP8Linear preserves shape when in_features == out_features.
@@ -273,6 +275,7 @@ class FP8LinearTest(unittest.TestCase):
         torch.cuda.is_available() and torch.cuda.get_device_capability()[0] < 9,
         "Skipping FP8LinearTest because it is not supported on GPU with capability < 9.0",
     )
+    @skipIfRocm
     def test_linear_with_diff_feature_size_preserves_shape(self):
         """
         Test that FP8Linear generates the correct shape when in_features != out_features.

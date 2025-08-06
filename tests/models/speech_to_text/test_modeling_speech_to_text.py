@@ -705,7 +705,7 @@ class Speech2TextModelIntegrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         model_name = "facebook/s2t-small-librispeech-asr"
-        cls.model = Speech2TextForConditionalGeneration.from_pretrained(model_name, device_map="auto")
+        cls.model = Speech2TextForConditionalGeneration.from_pretrained(model_name).to(torch_device)
         cls.processor = Speech2TextProcessor.from_pretrained(model_name)
         # loads 4 samples
         ds = load_dataset("hf-internal-testing/librispeech_asr_dummy", "clean", split="validation")

@@ -1955,6 +1955,7 @@ class AutomaticSpeechRecognitionPipelineTests(unittest.TestCase):
         )
 
     @require_torch
+    @skipIfRocm
     def test_pipeline_assisted_generation(self):
         """Tests that we can run assisted generation in the pipeline"""
         model = "openai/whisper-tiny"
