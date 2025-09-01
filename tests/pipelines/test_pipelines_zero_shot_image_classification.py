@@ -134,7 +134,7 @@ class ZeroShotImageClassificationPipelineTests(unittest.TestCase):
         )
 
         for single_output in output:
-            if rocmUtils.is_rocm_skippable(arch=['gfx1201','gfx1200', 'gfx1100']):
+            if rocmUtils.is_rocm_skippable(arch=['gfx1201','gfx1200', 'gfx1100', 'gfx1101']):
                 for sub_output in single_output:
                     compare_pipeline_output_to_hub_spec(sub_output, ZeroShotImageClassificationOutputElement)
             else:
