@@ -104,6 +104,7 @@ from transformers.testing_utils import (
     set_model_for_less_flaky_test,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.utils import (
     CONFIG_NAME,
@@ -1744,6 +1745,7 @@ class ModelTesterMixin:
             loss = model(**inputs).loss
             loss.backward()
 
+    @skipIfRocm(arch=['gfx90a','gfx942'])
     def test_training_gradient_checkpointing(self):
         # Scenario - 1 default behaviour
         self.check_training_gradient_checkpointing()
@@ -2805,6 +2807,7 @@ class ModelTesterMixin:
 
     @require_torch_gpu
     @require_torch_multi_gpu
+    @skipIfRocm
     def test_multi_gpu_data_parallel_forward(self):
         config, inputs_dict = self.model_tester.prepare_config_and_inputs_for_common()
 
@@ -2981,6 +2984,7 @@ class ModelTesterMixin:
     @require_accelerate
     @mark.accelerate_tests
     @require_torch_multi_accelerator
+    @skipIfRocm
     def test_model_parallelism(self):
         config, inputs_dict = self.model_tester.prepare_config_and_inputs_for_common()
 
@@ -4302,6 +4306,7 @@ class ModelTesterMixin:
         return config
 
     @require_torch_accelerator
+    @skipIfRocm(min_torch_version='2.5')
     def test_flex_attention_with_grads(self):
         for model_class in self.all_model_classes:
             config, inputs_dict = self.model_tester.prepare_config_and_inputs_for_common()

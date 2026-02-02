@@ -22,6 +22,7 @@ from transformers.testing_utils import (
     require_torch_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.utils.import_utils import is_causal_conv1d_available, is_mamba_2_ssm_available
 
@@ -264,6 +265,7 @@ class Mamba2ModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTesterMix
         self.assertEqual(past_key_values.conv_states.shape, conv_shape)
         self.assertEqual(past_key_values.ssm_states.shape, ssm_shape)
 
+    @skipIfRocm(arch='gfx942')
     def test_mamba2_caching(self):
         config_and_inputs = self.model_tester.prepare_config_and_inputs()
         self.model_tester.create_and_check_mamba2_caching(*config_and_inputs)

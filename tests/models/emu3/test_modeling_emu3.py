@@ -28,6 +28,7 @@ from transformers.testing_utils import (
     require_torch_large_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...generation.test_utils import GenerationTesterMixin
@@ -322,6 +323,7 @@ class Emu3Vision2TextModelTest(ModelTesterMixin, GenerationTesterMixin, Pipeline
 
     @pytest.mark.generate
     @unittest.skip("Emu3 has dynamic control flow in vision backbone")
+    @skipIfRocm(arch=['gfx942','gfx90a','gfx1100','gfx1101','gfx1201','gfx1200'])
     def test_generate_with_static_cache(self):
         pass
 

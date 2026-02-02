@@ -18,7 +18,7 @@ import unittest
 import pytest
 
 from transformers import LiltConfig, is_torch_available
-from transformers.testing_utils import require_torch, slow, torch_device
+from transformers.testing_utils import require_torch, slow, torch_device, skipIfRocm
 
 from ...test_configuration_common import ConfigTester
 from ...test_modeling_common import ModelTesterMixin, ids_tensor
@@ -240,6 +240,10 @@ class LiltModelTest(ModelTesterMixin, PipelineTesterMixin, unittest.TestCase):
         if is_torch_available()
         else {}
     )
+
+    @skipIfRocm(arch='gfx942')
+    def test_model_outputs_equivalence(self):
+        super().test_model_outputs_equivalence()
 
     # TODO: Fix the failed tests
     def is_pipeline_test_to_skip(

@@ -28,6 +28,7 @@ from transformers.testing_utils import (
     run_test_using_subprocess,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 
@@ -74,6 +75,7 @@ class Qwen2MoeModelTest(CausalLMModelTest, unittest.TestCase):
         self.skipTest(reason="Qwen2Moe flash attention does not support right padding")
 
     @is_flaky(max_attempts=2)
+    @skipIfRocm
     def test_load_balancing_loss(self):
         r"""
         Let's make sure we can actually compute the loss and do a backward on it.

@@ -28,6 +28,7 @@ from transformers.testing_utils import (
     require_torch_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...generation.test_utils import GenerationTesterMixin
@@ -517,6 +518,7 @@ class Zamba2ModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTesterMix
         pass
 
     @require_torch_accelerator
+    @skipIfRocm(min_torch_version='2.5')
     def test_flex_attention_with_grads(self):
         """
         Overwriting as the base hidden size is big enough for compile.

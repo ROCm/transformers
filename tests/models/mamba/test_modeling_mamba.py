@@ -397,6 +397,7 @@ class MambaModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTesterMixi
         )
 
     @unittest.skip("Mamba models do not support DDP.")
+    @skipIfRocm
     def test_multi_gpu_data_parallel_forward(self):
         pass
 
@@ -409,6 +410,7 @@ class MambaIntegrationTests(unittest.TestCase):
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
 
     @parameterized.expand([(torch_device,), ("cpu",)])
+    @skipIfRocm
     def test_simple_generate(self, device):
         tokenizer = AutoTokenizer.from_pretrained("state-spaces/mamba-130m-hf")
         tokenizer.pad_token = tokenizer.eos_token

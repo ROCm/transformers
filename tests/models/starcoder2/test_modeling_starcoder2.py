@@ -26,6 +26,7 @@ from transformers.testing_utils import (
     require_torch_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 

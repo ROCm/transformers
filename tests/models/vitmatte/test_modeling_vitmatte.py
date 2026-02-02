@@ -23,6 +23,7 @@ from transformers.testing_utils import (
     require_torch,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.utils import is_torch_available, is_vision_available
 

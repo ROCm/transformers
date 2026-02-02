@@ -16,7 +16,7 @@
 import unittest
 
 from transformers import is_torch_available
-from transformers.testing_utils import require_torch, slow
+from transformers.testing_utils import require_torch, slow, skipIfRocm
 
 from ...causal_lm_tester import CausalLMModelTest, CausalLMModelTester
 
@@ -85,6 +85,14 @@ class DbrxModelTester(CausalLMModelTester):
 @require_torch
 class DbrxModelTest(CausalLMModelTest, unittest.TestCase):
     model_tester_class = DbrxModelTester
+
+    @skipIfRocm(arch=['gfx1201','gfx90a','gfx942','gfx1100','gfx1101','gfx1200'])
+    def test_generate_with_static_cache(self):
+        super().test_generate_with_static_cache()
+
+    @skipIfRocm(arch=['gfx1201','gfx90a','gfx942','gfx1100','gfx1101','gfx1200'])
+    def test_generate_from_inputs_embeds_with_static_cache(self):
+        super().test_generate_from_inputs_embeds_with_static_cache()
 
     @slow
     def test_model_from_pretrained(self):

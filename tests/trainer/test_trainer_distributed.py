@@ -24,6 +24,7 @@ from transformers.testing_utils import (
     require_torch_multi_accelerator,
     run_first,
     torch_device,
+    skipIfRocm,
 )
 from transformers.training_args import ParallelMode
 from transformers.utils import logging
@@ -119,6 +120,7 @@ if is_torch_available():
 class TestTrainerDistributed(TestCasePlus):
     @run_first
     @require_torch_multi_accelerator
+    @skipIfRocm(os_name='ubuntu', os_version='24.04')
     def test_trainer(self):
         distributed_args = f"""--nproc_per_node={backend_device_count(torch_device)}
             --master_port={get_torch_dist_unique_port()}

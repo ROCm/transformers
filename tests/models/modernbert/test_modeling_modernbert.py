@@ -35,6 +35,7 @@ from transformers.testing_utils import (
     require_torch_multi_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.utils import CONFIG_NAME, GENERATION_CONFIG_NAME
 

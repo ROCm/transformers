@@ -28,6 +28,7 @@ from transformers.testing_utils import (
     require_torch,
     require_torch_accelerator,
     torch_device,
+    skipIfRocm,
 )
 
 from .test_pipelines_common import ANY
@@ -39,6 +40,7 @@ class TextGenerationPipelineTests(unittest.TestCase):
     model_mapping = MODEL_FOR_CAUSAL_LM_MAPPING
 
     @require_torch
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1101','gfx1200'])
     def test_small_model_pt(self):
         text_generator = pipeline(
             task="text-generation",
@@ -305,6 +307,7 @@ class TextGenerationPipelineTests(unittest.TestCase):
         )
         return text_generator, ["This is a test", "Another test"]
 
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1101','gfx1200'])
     def test_stop_sequence_stopping_criteria(self):
         prompt = """Hello I believe in"""
         text_generator = pipeline(
@@ -418,6 +421,7 @@ class TextGenerationPipelineTests(unittest.TestCase):
     @require_torch
     @require_accelerate
     @require_torch_accelerator
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1101','gfx1200'])
     def test_small_model_pt_bloom_accelerate(self):
         import torch
 

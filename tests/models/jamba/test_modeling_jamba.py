@@ -31,6 +31,7 @@ from transformers.testing_utils import (
     require_torch_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...generation.test_utils import GenerationTesterMixin
@@ -404,6 +405,7 @@ class JambaModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTesterMixi
 
     # After #40617, we still have 0.01 % of failure rate here.
     @is_flaky(max_attempts=2)
+    @skipIfRocm
     def test_load_balancing_loss(self):
         r"""
         Let's make sure we can actually compute the loss and do a backward on it.

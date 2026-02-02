@@ -17,7 +17,7 @@ import tempfile
 import unittest
 
 from transformers import DPRConfig, is_torch_available
-from transformers.testing_utils import require_torch, slow, torch_device
+from transformers.testing_utils import require_torch, slow, torch_device, skipIfRocm
 
 from ...test_configuration_common import ConfigTester
 from ...test_modeling_common import ModelTesterMixin, ids_tensor, random_attention_mask
@@ -187,6 +187,10 @@ class DPRModelTest(ModelTesterMixin, PipelineTesterMixin, unittest.TestCase):
 
     test_resize_embeddings = False
     test_missing_keys = False  # why?
+
+    @skipIfRocm(arch=['gfx90a','gfx942'])
+    def test_eager_matches_sdpa_inference_2_float32(self):
+        super().test_eager_matches_sdpa_inference_2_float32()
 
     def setUp(self):
         self.model_tester = DPRModelTester(self)

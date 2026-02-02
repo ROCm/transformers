@@ -39,6 +39,7 @@ from transformers.testing_utils import (
     require_vision,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...generation.test_utils import GenerationTesterMixin

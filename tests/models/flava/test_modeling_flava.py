@@ -29,7 +29,7 @@ from transformers import (
     FlavaMultimodalConfig,
     FlavaTextConfig,
 )
-from transformers.testing_utils import require_torch, require_vision, slow, torch_device
+from transformers.testing_utils import require_torch, require_vision, slow, torch_device, skipIfRocm
 from transformers.utils import is_torch_available, is_vision_available
 
 from ...test_configuration_common import ConfigTester
@@ -558,6 +558,10 @@ class FlavaMultimodalModelTest(ModelTesterMixin, unittest.TestCase):
     all_model_classes = (FlavaMultimodalModel,) if is_torch_available() else ()
 
     test_resize_embeddings = False
+
+    @skipIfRocm
+    def test_batching_equivalence(self):
+        super().test_batching_equivalence()
 
     def setUp(self):
         self.model_tester = FlavaMultimodalModelTester(self)

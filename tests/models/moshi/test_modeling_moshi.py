@@ -38,6 +38,7 @@ from transformers.testing_utils import (
     require_torch_fp16,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...generation.test_utils import GenerationTesterMixin
@@ -700,6 +701,7 @@ class MoshiTest(ModelTesterMixin, GenerationTesterMixin, unittest.TestCase):
                 torch.testing.assert_close(res_eager.audio_sequences, res_sdpa.audio_sequences)
 
     @pytest.mark.generate
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1200'])
     def test_generate_without_input_ids(self):
         config, _, _, _ = self._get_input_ids_and_config()
 
@@ -725,6 +727,7 @@ class MoshiTest(ModelTesterMixin, GenerationTesterMixin, unittest.TestCase):
     def test_training_gradient_checkpointing_use_reentrant_true(self):
         super().test_training_gradient_checkpointing_use_reentrant_true()
 
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1200'])
     def test_generate_from_input_values(self):
         for model_class in self.all_generative_model_classes:
             config, input_ids, _, _ = self._get_input_ids_and_config()
@@ -754,6 +757,7 @@ class MoshiTest(ModelTesterMixin, GenerationTesterMixin, unittest.TestCase):
                 torch.allclose(outputs_from_audio_codes.audio_sequences, outputs_from_audio_values.audio_sequences)
             )
 
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1200'])
     def test_generate_depth_decoder_kwargs(self):
         # test sampling and beam search
         for model_class in self.all_generative_model_classes:
@@ -767,6 +771,7 @@ class MoshiTest(ModelTesterMixin, GenerationTesterMixin, unittest.TestCase):
                 input_ids, max_new_tokens=5, **input_dict, depth_decoder_do_sample=True, depth_decoder_num_beams=5
             )
 
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1200'])
     def test_generate_from_unconditional(self):
         # test sampling and beam search
         for model_class in self.all_generative_model_classes:

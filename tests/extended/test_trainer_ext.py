@@ -34,6 +34,7 @@ from transformers.testing_utils import (
     require_torch_non_multi_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.trainer_callback import TrainerState
 from transformers.trainer_utils import set_seed
@@ -95,16 +96,19 @@ class TestTrainerExt(TestCasePlus):
 
     # verify that the trainer can handle non-distributed with n_gpu > 1
     @require_torch_multi_accelerator
+    @skipIfRocm
     def test_run_seq2seq_dp(self):
         self.run_seq2seq_quick(distributed=False)
 
     # verify that the trainer can handle distributed with n_gpu > 1
     @require_torch_multi_accelerator
+    @skipIfRocm
     def test_run_seq2seq_ddp(self):
         self.run_seq2seq_quick(distributed=True)
 
     @parameterized.expand(["base", "low", "high", "mixed"])
     @require_torch_multi_accelerator
+    @skipIfRocm
     def test_trainer_log_level_replica(self, experiment_id):
         # as each sub-test is slow-ish split into multiple sub-tests to avoid CI timeout
         experiments = {

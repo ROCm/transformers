@@ -38,6 +38,7 @@ from transformers.testing_utils import (
     require_torch_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.utils import is_cv2_available
 

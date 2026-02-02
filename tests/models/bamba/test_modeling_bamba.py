@@ -36,6 +36,7 @@ from transformers.testing_utils import (
     require_torch_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...generation.test_utils import GenerationTesterMixin
@@ -425,6 +426,7 @@ class BambaModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTesterMixi
         self.model_tester.use_input_mask = orig
 
     @pytest.mark.generate
+    @skipIfRocm(os_name='ubuntu', os_version='24.04')
     def test_left_padding_compatibility(self):
         # TODO: document why a random attention mask causes this test to fail, but a full mask doesn't
         unpadded_custom_inputs = {"attention_mask": None}

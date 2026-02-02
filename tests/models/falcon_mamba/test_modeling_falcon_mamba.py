@@ -30,6 +30,7 @@ from transformers.testing_utils import (
     require_torch_multi_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...generation.test_utils import GenerationTesterMixin
@@ -400,6 +401,7 @@ class FalconMambaModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTest
             check_equivalence(model, tuple_inputs, dict_inputs, {"output_hidden_states": True})
 
     @unittest.skip("Mamba models do not support DDP.")
+    @skipIfRocm(arch=['gfx1201','gfx90a','gfx942','gfx1200'])
     def test_multi_gpu_data_parallel_forward(self):
         pass
 

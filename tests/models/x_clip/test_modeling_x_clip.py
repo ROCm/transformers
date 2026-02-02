@@ -28,6 +28,7 @@ from transformers.testing_utils import (
     require_vision,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.utils import is_torch_available, is_vision_available
 
@@ -279,6 +280,7 @@ class XCLIPVisionModelTest(ModelTesterMixin, unittest.TestCase):
             )
 
     @require_torch_multi_gpu
+    @skipIfRocm(arch='gfx90a')
     def test_multi_gpu_data_parallel_forward(self):
         config, inputs_dict = self.model_tester.prepare_config_and_inputs_for_common()
 

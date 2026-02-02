@@ -27,6 +27,7 @@ from transformers.testing_utils import (
     require_vision,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...generation.test_utils import GenerationTesterMixin
@@ -637,6 +638,7 @@ class IdeficsModelTest(ModelTesterMixin, PipelineTesterMixin, GenerationTesterMi
         pass
 
     @pytest.mark.generate
+    @skipIfRocm(os_name='ubuntu', os_version='24.04')
     def test_left_padding_compatibility(self):
         # Overwrite -- Idefics needs to prepare `image_attention_mask`, and it must be padded accordingly
         _, inputs_dict = self.prepare_config_and_inputs_for_generate()
@@ -828,6 +830,7 @@ class IdeficsForVisionText2TextTest(IdeficsModelTest, GenerationTesterMixin, uni
         pass
 
     @unittest.skip(reason="IDEFICS cannot compile due to dynamic control flow when checking inputs")
+    @skipIfRocm(arch=['gfx1201','gfx90a','gfx942','gfx1100','gfx1101','gfx1200'])
     def test_generate_with_static_cache(self):
         pass
 

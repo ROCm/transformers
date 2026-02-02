@@ -25,6 +25,7 @@ from transformers.testing_utils import (
     require_torch,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...causal_lm_tester import CausalLMModelTest, CausalLMModelTester

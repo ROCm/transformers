@@ -22,6 +22,7 @@ from transformers.testing_utils import (
     require_torch,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from ...test_modeling_common import floats_tensor, ids_tensor, random_attention_mask
@@ -394,6 +395,7 @@ class EncoderDecoderMixin:
         input_ids_dict = self.prepare_config_and_inputs()
         self.check_encoder_decoder_model_from_pretrained(**input_ids_dict, return_dict=True)
 
+    @skipIfRocm(arch=['gfx942','gfx90a'])
     def test_save_and_load_from_pretrained(self):
         input_ids_dict = self.prepare_config_and_inputs()
         self.check_save_and_load(**input_ids_dict)

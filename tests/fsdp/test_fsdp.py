@@ -35,6 +35,7 @@ from transformers.testing_utils import (
     run_first,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.trainer_callback import TrainerState
 from transformers.trainer_utils import FSDPOption, set_seed

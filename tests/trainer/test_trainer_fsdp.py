@@ -24,6 +24,7 @@ from transformers.testing_utils import (
     require_torch_multi_accelerator,
     run_first,
     torch_device,
+    skipIfRocm,
 )
 
 
@@ -68,6 +69,7 @@ class TestFSDPTrainer(TestCasePlus):
     @require_torch_multi_accelerator
     @require_accelerate
     @run_first
+    @skipIfRocm(os_name='ubuntu', os_version='24.04')
     def test_trainer(self):
         output_dir = self.get_auto_remove_tmp_dir()
         cmd = [

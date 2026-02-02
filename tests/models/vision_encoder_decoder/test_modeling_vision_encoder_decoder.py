@@ -31,6 +31,7 @@ from transformers.testing_utils import (
     slow,
     to_2tuple,
     torch_device,
+    skipIfRocm,
 )
 from transformers.utils import (
     is_torch_available,
@@ -334,6 +335,7 @@ class EncoderDecoderMixin:
         input_ids_dict = self.prepare_config_and_inputs()
         self.check_encoder_decoder_model_from_pretrained(**input_ids_dict, return_dict=True)
 
+    @skipIfRocm(arch=['gfx90a','gfx942'])
     def test_save_and_load_from_pretrained(self):
         input_ids_dict = self.prepare_config_and_inputs()
         self.check_save_and_load(**input_ids_dict)

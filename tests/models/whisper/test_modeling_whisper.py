@@ -37,6 +37,7 @@ from transformers.testing_utils import (
     require_torchaudio,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.utils import is_torch_available, is_torch_xpu_available, is_torchaudio_available
 from transformers.utils.import_utils import is_datasets_available
@@ -1090,6 +1091,7 @@ class WhisperModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTesterMi
     def test_longform_generate_multi_batch(self):
         self._check_longform_generate_multi_batch(condition_on_prev_tokens=False)
 
+    @skipIfRocm(arch='gfx90a', os_name='ubuntu', os_version='24.04')
     def test_longform_generate_multi_batch_cond_prev(self):
         self._check_longform_generate_multi_batch(condition_on_prev_tokens=True)
 

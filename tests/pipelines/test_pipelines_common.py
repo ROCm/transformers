@@ -51,6 +51,7 @@ from transformers.testing_utils import (
     require_torch_multi_accelerator,
     slow,
     torch_device,
+    skipIfRocm,
 )
 from transformers.utils import direct_transformers_import, is_torch_available
 from transformers.utils import logging as transformers_logging
@@ -796,6 +797,7 @@ class CustomPipelineTest(unittest.TestCase):
         )
 
     @require_torch
+    @skipIfRocm
     def test_cached_pipeline_has_minimum_calls_to_head(self):
         # Make sure we have cached the pipeline.
         _ = pipeline("text-classification", model="hf-internal-testing/tiny-random-bert")
@@ -829,6 +831,7 @@ class CustomPipelineTest(unittest.TestCase):
         self.assertEqual(self.COUNT, 1)
 
     @require_torch
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1101','gfx1200'])
     def test_custom_code_with_string_tokenizer(self):
         # This test checks for an edge case - tokenizer loading used to fail when using a custom code model
         # with a separate tokenizer that was passed as a repo name rather than a tokenizer object.

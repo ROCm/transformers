@@ -46,6 +46,7 @@ from transformers.testing_utils import (
     require_torchaudio,
     slow,
     torch_device,
+    skipIfRocm,
 )
 
 from .test_pipelines_common import ANY
@@ -164,6 +165,7 @@ class AutomaticSpeechRecognitionPipelineTests(unittest.TestCase):
         pipeline("automatic-speech-recognition")
 
     @require_torch
+    @skipIfRocm(arch='gfx942')
     def test_small_model_pt(self):
         speech_recognizer = pipeline(
             task="automatic-speech-recognition",
@@ -234,6 +236,7 @@ class AutomaticSpeechRecognitionPipelineTests(unittest.TestCase):
         speech_recognizer(waveform)
 
     @require_torch
+    @skipIfRocm(arch=['gfx1201','gfx942','gfx90a','gfx1100','gfx1101','gfx1200'])
     def test_small_model_pt_seq2seq(self):
         speech_recognizer = pipeline(
             model="hf-internal-testing/tiny-random-speech-encoder-decoder",

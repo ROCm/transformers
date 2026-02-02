@@ -16,7 +16,7 @@
 import unittest
 
 from transformers import AutoTokenizer, DynamicCache, GPTNeoXConfig, is_torch_available
-from transformers.testing_utils import require_torch, slow, torch_device
+from transformers.testing_utils import require_torch, slow, torch_device, skipIfRocm
 
 from ...generation.test_utils import GenerationTesterMixin
 from ...test_configuration_common import ConfigTester
@@ -284,6 +284,14 @@ class GPTNeoXModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTesterMi
     )
 
     test_missing_keys = False
+
+    @skipIfRocm(arch=['gfx90a','gfx942','gfx1100','gfx1101','gfx1200','gfx1201'])
+    def test_flex_attention_with_grads(self):
+        super().test_flex_attention_with_grads()
+
+    @skipIfRocm(arch=['gfx1201','gfx90a','gfx942','gfx1100','gfx1101','gfx1200'])
+    def test_generate_with_static_cache(self):
+        super().test_generate_with_static_cache()
 
     def setUp(self):
         self.model_tester = GPTNeoXModelTester(self)
