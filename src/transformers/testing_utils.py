@@ -190,6 +190,7 @@ if is_pytest_available():
     from _pytest.outcomes import skip
     from _pytest.pathlib import import_path
     from pytest import DoctestItem
+    import pytest
 else:
     Module = object
     DoctestItem = object
@@ -273,6 +274,200 @@ _run_staging = parse_flag_from_env("HUGGINGFACE_CO_STAGING", default=False)
 _run_pipeline_tests = parse_flag_from_env("RUN_PIPELINE_TESTS", default=True)
 _run_agent_tests = parse_flag_from_env("RUN_AGENT_TESTS", default=False)
 _run_training_tests = parse_flag_from_env("RUN_TRAINING_TESTS", default=True)
+_test_with_rocm = parse_flag_from_env("TEST_WITH_ROCM", default=False)
+
+
+import platform
+from packaging.version import parse as parse_version
+
+
+class RocmUtil:
+    def __init__(self):
+        pass
+
+    def get_gpu_vendor(self):
+        """Returns the GPU vendor by checking for NVIDIA or ROCm utilities."""
+        cmd = (
+            "bash -c 'if [[ -f /usr/bin/nvidia-smi ]] && "
+            "$(/usr/bin/nvidia-smi > /dev/null 2>&1); then echo \"NVIDIA\"; "
+            "elif [[ -f /opt/rocm/bin/rocm-smi ]]; then echo \"AMD\"; "
+            "else echo \"Unable to detect GPU vendor\"; fi || true'"
+        )
+        return subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
+
+    def get_system_gpu_architecture(self):
+        """
+        Returns the GPU architecture string if the vendor is AMD.
+        For AMD, extracts a line starting with 'gfx' via `/opt/rocm/bin/rocminfo`.
+        For NVIDIA, returns the GPU name using `nvidia-smi` (informational only).
+        Returns "unknown" if detection fails (e.g., in containers without GPU access).
+        """
+        vendor = self.get_gpu_vendor()
+        try:
+            if vendor == "AMD":
+                cmd = "/opt/rocm/bin/rocminfo | grep -o -m 1 'gfx.*'"
+                return subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode("utf-8").strip()
+            elif vendor == "NVIDIA":
+                cmd = (
+                    "nvidia-smi -L | head -n1 | sed 's/(UUID: .*)//g' | sed 's/GPU 0: //g'"
+                )
+                return subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode("utf-8").strip()
+        except subprocess.CalledProcessError:
+            return "unknown"
+        return "unknown"
+
+    def get_rocm_version(self):
+        """
+        Returns the ROCm version as a string by reading the file /opt/rocm/.info/version.
+        Expected format (example): "6.4.0-15396"
+        """
+        cmd = "cat /opt/rocm/.info/version"
+        return subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
+
+    def get_current_os(self):
+        """
+        Attempts to determine the current operating system.
+        On Linux, parses /etc/os-release for the OS ID (e.g., "rhel", "sles", "ubuntu").
+        Otherwise, falls back to platform.system().
+        """
+        if os.name == "posix" and os.path.exists("/etc/os-release"):
+            try:
+                with open("/etc/os-release") as f:
+                    for line in f:
+                        if line.startswith("ID="):
+                            return line.split("=")[1].strip().strip('"').lower()
+            except Exception:
+                pass
+        return platform.system().lower()
+
+    def get_current_os_version(self):
+        """
+        Attempts to determine the current operating system version.
+        On Linux, parses /etc/os-release for the VERSION_ID (e.g., "24.04").
+        Otherwise, falls back to platform.version().
+        """
+        if os.name == "posix" and os.path.exists("/etc/os-release"):
+            try:
+                with open("/etc/os-release") as f:
+                    for line in f:
+                        if line.startswith("VERSION_ID="):
+                            return line.split("=")[1].strip().strip('"').lower()
+            except Exception:
+                pass
+        return platform.version().lower()
+
+    def is_rocm_skippable(self, arch=None, rocm_version=None, os_name=None, os_version=None):
+        """
+        Determines whether the current system should be considered "skippable" based on ROCm criteria.
+        """
+        vendor = self.get_gpu_vendor()
+        if vendor != "AMD":
+            return False
+
+        if arch is None and rocm_version is None and os_name is None:
+            return True
+
+        if arch is not None:
+            arch_list = (arch,) if isinstance(arch, str) else arch
+            current_gpu_arch = self.get_system_gpu_architecture()
+            if current_gpu_arch in arch_list:
+                return True
+
+        if rocm_version is not None:
+            ver_list = (rocm_version,) if isinstance(rocm_version, str) else rocm_version
+            current_ver = self.get_rocm_version()
+            if any(current_ver.startswith(v) for v in ver_list):
+                return True
+
+        if os_name is not None or os_version is not None:
+            if os_name is None or os_version is None:
+                raise ValueError("Both os_name and os_version must be provided together for OS-based skipping.")
+            current_os = self.get_current_os()
+            current_os_ver = self.get_current_os_version()
+
+            if isinstance(os_name, str):
+                os_name_list = [os_name]
+                os_version_list = [os_version]
+            else:
+                os_name_list = list(os_name)
+                os_version_list = list(os_version) if not isinstance(os_version, str) else [os_version]
+
+            if len(os_name_list) != len(os_version_list):
+                raise ValueError("os_name and os_version lists must have the same length.")
+
+            for name, ver in zip(os_name_list, os_version_list):
+                if current_os == name and (ver == "*" or current_os_ver.startswith(ver)):
+                    return True
+
+        return False
+
+
+rocmUtils = RocmUtil()
+
+
+def skipIfRocm(func=None, *, msg="test doesn't currently work on the ROCm stack", arch=None, rocm_version=None, os_name=None, os_version=None, min_torch_version=None):
+    """
+    Pytest decorator to skip a test on AMD systems running ROCm, with additional conditions based on
+    GPU architecture, ROCm version, and/or operating system.
+    """
+    def dec_fn(fn):
+        reason = f"skipIfRocm: {msg}"
+
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            if min_torch_version is not None:
+                if parse_version(torch.__version__) < parse_version(min_torch_version):
+                    pytest.skip(
+                        f"Test requires torch version {min_torch_version} or greater; found {torch.__version__}"
+                    )
+
+            vendor = rocmUtils.get_gpu_vendor()
+            if vendor == "AMD":
+                should_skip = False
+
+                if arch is None and rocm_version is None and os_name is None:
+                    should_skip = True
+
+                if arch is not None:
+                    arch_list = (arch,) if isinstance(arch, str) else arch
+                    current_gpu_arch = rocmUtils.get_system_gpu_architecture()
+                    if current_gpu_arch in arch_list:
+                        should_skip = True
+
+                if rocm_version is not None:
+                    ver_list = (rocm_version,) if isinstance(rocm_version, str) else rocm_version
+                    current_version = rocmUtils.get_rocm_version()
+                    if any(current_version.startswith(v) for v in ver_list):
+                        should_skip = True
+
+                if os_name is not None or os_version is not None:
+                    if os_name is None or os_version is None:
+                        raise ValueError("Both os_name and os_version must be provided together for OS-based skipping.")
+                    current_os = rocmUtils.get_current_os()
+                    current_os_ver = rocmUtils.get_current_os_version()
+
+                    if isinstance(os_name, str):
+                        os_name_list = [os_name]
+                        os_version_list = [os_version]
+                    else:
+                        os_name_list = list(os_name)
+                        os_version_list = list(os_version) if not isinstance(os_version, str) else [os_version]
+
+                    if len(os_name_list) != len(os_version_list):
+                        raise ValueError("os_name and os_version lists must have the same length.")
+
+                    for name, ver in zip(os_name_list, os_version_list):
+                        if current_os == name and (ver == "*" or current_os_ver.startswith(ver)):
+                            should_skip = True
+
+                if should_skip:
+                    pytest.skip(reason)
+            return fn(*args, **kwargs)
+        return wrapper
+
+    if func:
+        return dec_fn(func)
+    return dec_fn
 
 
 def is_staging_test(test_case):

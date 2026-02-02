@@ -285,9 +285,11 @@ class TrainingArguments:
             The scheduler type to use. See the documentation of [`SchedulerType`] for all possible values.
         lr_scheduler_kwargs (`dict` or `str`, *optional*, defaults to `None`):
             The extra arguments for the lr_scheduler. See the documentation of each scheduler for possible values.
-        warmup_steps (`int` or `float`, *optional*, defaults to 0):
+        warmup_steps (`int` or `float`, *optional*, defaults to 10):
             Number of steps used for a linear warmup from 0 to `learning_rate`.  Should be an integer or a float in range `[0,1)`.
             If smaller than 1, will be interpreted as ratio of steps used for a linear warmup from 0 to `learning_rate`.
+        stable_train_warmup_steps (`int`, *optional*, defaults to 0):
+            Number of steps to skip before collecting performance numbers for stable_train_samples_per_second.
         log_level (`str`, *optional*, defaults to `passive`):
             Logger log level to use on the main process. Possible choices are the log levels as strings: 'debug',
             'info', 'warning', 'error' and 'critical', plus a 'passive' level which doesn't set anything and keeps the
@@ -864,7 +866,8 @@ class TrainingArguments:
         },
     )
 
-    warmup_steps: float = field(default=0, metadata={"help": "Linear warmup over warmup_steps."})
+    warmup_steps: float = field(default=10, metadata={"help": "Linear warmup over warmup_steps."})
+    stable_train_warmup_steps: int = field(default=0, metadata={"help": "Warmup steps to skip before collecting training performance."})
 
     log_level: str = field(
         default="passive",

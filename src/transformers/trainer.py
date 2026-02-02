@@ -2440,6 +2440,8 @@ class Trainer:
         if args.eval_on_start:
             self._evaluate(trial, ignore_keys_for_eval, skip_scheduler=True)
 
+        start_train_stable_time = 0
+        total_batched_samples = 0
         for epoch in range(epochs_trained, num_train_epochs):
             epoch_dataloader = train_dataloader
 
@@ -2524,6 +2526,9 @@ class Trainer:
 
                     if step % args.gradient_accumulation_steps == 0:
                         self.control = self.callback_handler.on_step_begin(args, self.state, self.control)
+
+                    if self.state.global_step == args.stable_train_warmup_steps:
+                        start_train_stable_time = time.time()
 
                     # We explicitly want to avoid relying on `accelerator.accumulate` for generation training
                     context = (
@@ -2678,6 +2683,11 @@ class Trainer:
         self._memory_tracker.stop_and_update_metrics(metrics)
 
         self.log(metrics)
+
+        # Log stable training metrics (after warmup)
+        stable_train_samples = num_train_samples - args.stable_train_warmup_steps * total_train_batch_size
+        stable_train_metrics = speed_metrics("stable_train", start_train_stable_time, stable_train_samples)
+        self.log(stable_train_metrics)
 
         run_dir = self._get_output_dir(trial)
         checkpoints_sorted = self._sorted_checkpoints(use_mtime=False, output_dir=run_dir)
