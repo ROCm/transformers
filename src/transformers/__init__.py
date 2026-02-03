@@ -361,7 +361,9 @@ else:
         "Cache",
         "DynamicCache",
         "EncoderDecoderCache",
+        "HybridCache",
         "QuantizedCache",
+        "SlidingWindowCache",
         "StaticCache",
     ]
     _import_structure["data.datasets"] = [
@@ -472,8 +474,10 @@ if TYPE_CHECKING:
     from .cache_utils import DynamicLayer as DynamicLayer
     from .cache_utils import EncoderDecoderCache as EncoderDecoderCache
     from .cache_utils import HQQQuantizedLayer as HQQQuantizedLayer
+    from .cache_utils import HybridCache as HybridCache
     from .cache_utils import QuantizedCache as QuantizedCache
     from .cache_utils import QuantoQuantizedLayer as QuantoQuantizedLayer
+    from .cache_utils import SlidingWindowCache as SlidingWindowCache
     from .cache_utils import StaticCache as StaticCache
     from .cache_utils import StaticLayer as StaticLayer
     from .cache_utils import StaticSlidingWindowLayer as StaticSlidingWindowLayer

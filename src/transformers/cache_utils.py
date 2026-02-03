@@ -1082,6 +1082,36 @@ class StaticCache(Cache):
         super().__init__(layers=layers, offloading=offloading, offload_only_non_sliding=offload_only_non_sliding)
 
 
+class HybridCache(StaticCache):
+    """
+    Deprecated: Use `StaticCache` instead, which now handles hybrid cache structures automatically.
+
+    This class is kept for backward compatibility with code that imports `HybridCache`.
+    """
+
+    def __init__(self, config, max_cache_len: int | None = None, *args, **kwargs):
+        logger.warning_once(
+            "`HybridCache` is deprecated. Use `StaticCache(...)` instead, "
+            "which will correctly infer the type of each layer."
+        )
+        super().__init__(config=config, max_cache_len=max_cache_len, **kwargs)
+
+
+class SlidingWindowCache(StaticCache):
+    """
+    Deprecated: Use `StaticCache` instead, which now handles sliding window structures automatically.
+
+    This class is kept for backward compatibility with code that imports `SlidingWindowCache`.
+    """
+
+    def __init__(self, config, max_cache_len: int | None = None, *args, **kwargs):
+        logger.warning_once(
+            "`SlidingWindowCache` is deprecated. Use `StaticCache(...)` instead, "
+            "which will correctly infer the type of each layer."
+        )
+        super().__init__(config=config, max_cache_len=max_cache_len, **kwargs)
+
+
 class QuantizedCache(Cache):
     """
     A quantizer cache similar to what is described in the
