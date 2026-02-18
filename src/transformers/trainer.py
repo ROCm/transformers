@@ -565,6 +565,26 @@ class Trainer:
         self.eval_dataset = eval_dataset
         self.processing_class = processing_class
 
+        # When using fp16 mixed precision (AMP), the model must be in fp32 so that autocast handles
+        # the fp16 forward pass and gradients remain in fp32 for GradScaler. Since dtype="auto" is now
+        # the default in from_pretrained(), models may be loaded in fp16 from checkpoint weights, which
+        # would produce fp16 gradients that GradScaler cannot unscale. Upcast on CPU before moving to
+        # device to avoid GPU memory spikes, and before optimizer creation so params are fp32.
+        if (
+            args.fp16
+            and not self.is_deepspeed_enabled
+            and not is_sagemaker_mp_enabled()
+            and not getattr(model, "is_loaded_in_8bit", False)
+            and not getattr(model, "is_loaded_in_4bit", False)
+        ):
+            model_dtype = next((p.dtype for p in model.parameters() if p.is_floating_point()), None)
+            if model_dtype == torch.float16:
+                logger.info(
+                    "Model is in float16 but fp16 mixed precision training requires float32 weights. "
+                    "Upcasting model to float32. The autocast context will handle fp16 computation."
+                )
+                model = model.float()
+
         # Bnb Quantized models doesn't support `.to` operation.
         if (
             self.place_model_on_device
